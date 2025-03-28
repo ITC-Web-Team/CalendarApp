@@ -25,6 +25,10 @@ def delete(request):
 def show_event(request):
     return
 
+@api_view(['GET'])
+def callback(request):
+    return
+
 
 
 
