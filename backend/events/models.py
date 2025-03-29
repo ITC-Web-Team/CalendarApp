@@ -97,4 +97,4 @@ class Event(models.Model):
     recur_start=models.DateField(default=datetime.date.today,null=True, blank=True)
     recur_end=models.DateField(default=datetime.date.today, null=True, blank=True)
     def __str__(self):
-        return self.name
+        return self.title
