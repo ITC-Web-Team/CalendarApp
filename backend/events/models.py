@@ -13,7 +13,7 @@ RECURRENCE_CHOICES=[
 DEPARTMENT_CHOICES = [
         ('AE', 'Aerospace Engineering'),
         ('BB', 'Biosciences and Bioengineering'),
-        ('CE', 'Chemical Engineering'),
+        ('ChE', 'Chemical Engineering'),
         ('CH', 'Chemistry'),
         ('CE', 'Civil Engineering'),
         ('CSE', 'Computer Science & Engineering'),
@@ -47,7 +47,7 @@ DEGREE_CHOICES = [
         ('Other', 'Other')
     ]
 
-USER_GROUP_CHOICES=[
+BODY_CATEGORY_CHOICES=[
     ('C','Club'),
     ('TT','Tech Team'),
     ('Co', 'Community'),
@@ -55,29 +55,29 @@ USER_GROUP_CHOICES=[
 ]
 
 
-class UserCategory(models.Model):
+class BodyCategory(models.Model):
     id=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name=models.TextField(max_length=20, choices=USER_GROUP_CHOICES,default='club')
-    bodies=models.JSONField(default=list, blank=True)
+    name=models.CharField(max_length=20, choices=BODY_CATEGORY_CHOICES, default='C')
     def __str__(self):
         return self.name
 
 
 class Body(models.Model):
-  name = models.CharField(max_length=100)
-  type = models.IntegerField(choices=USER_GROUP_CHOICES)
-  contact_email = models.EmailField()
+  id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  name = models.CharField(max_length=100, unique=True)
+  category = models.ForeignKey(BodyCategory, on_delete=models.CASCADE, related_name='bodies', default='C')
+  contact_email = models.EmailField(unique=True)
   def __str__(self):
       return self.name
 
 
 class User(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100, default='')
-    roll_number=models.CharField(max_length=20, default='')
+    roll_number=models.CharField(max_length=20, default='', unique=True)
     department=models.CharField(choices=DEPARTMENT_CHOICES, max_length=100, default='CE')
     degree=models.CharField( choices=DEGREE_CHOICES, max_length=100 ,default='B.Tech')
-    user_category=models.ManyToManyField(UserCategory)
-    body=models.ManyToManyField(Body)
+    body = models.ForeignKey(Body, on_delete=models.CASCADE, related_name='users', null=True, blank=True)
     def __str__(self):
         return self.name
     
@@ -86,10 +86,11 @@ class Event(models.Model):
     id=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title=models.TextField(max_length=100, null=True)
     description=models.TextField(max_length=200, null=True, blank=True)
-    organiser=models.TextField(max_length=20)
+    organiser=models.ForeignKey(Body, on_delete=models.CASCADE, related_name='events')
+    posted_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='events', null=True, blank=True)
     venue=models.TextField(max_length=20, null=True)
-    start_time=models.TimeField(default=datetime.datetime.now(), null=True, blank=True)
-    end_time=models.TimeField(default=datetime.datetime.now(), null=True, blank=True)
+    start_time=models.TimeField(default=datetime.datetime.now, null=True, blank=True)
+    end_time=models.TimeField(default=datetime.datetime.now, null=True, blank=True)
     start_date=models.DateField(default=datetime.date.today)
     end_date=models.DateField(default=datetime.date.today)
     recurrence=models.TextField(max_length=220, choices=RECURRENCE_CHOICES)
