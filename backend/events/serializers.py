@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import *
 
-class UserCategorySerializer(serializers.Serializers):
+class UserCategorySerializer(serializers.Serializer):
     model=UserCategory
     fields='__all__'
 
