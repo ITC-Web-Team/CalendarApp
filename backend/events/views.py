@@ -16,9 +16,12 @@ from .serializers import EventSerializer, UserSerializer
 # Show all events
 @api_view(['GET'])
 def show_all(request):
-    events = Event.objects.all()
-    serializer = EventSerializer(events, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    try:
+        events = Event.objects.all()
+        serializer = EventSerializer(events, many=True)
+        return Response(serializer.data)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
 
 # Create a new event
 @api_view(['POST'])
